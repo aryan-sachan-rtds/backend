@@ -1,0 +1,8 @@
+model Post {
+  id         Int      @id @default(autoincrement())
+  title      String
+  published  Boolean  @default(false)
+  authorId   Int?
+  created_at DateTime @default(now()) @mydb.Timestamptz(3)
+  author     User?    @relation(fields: [authorId], references: [id])
+}
