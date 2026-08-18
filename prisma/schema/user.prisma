@@ -7,11 +7,17 @@ datasource mydb {
   provider = "postgresql"
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
   id         Int      @id @default(autoincrement())
   email      String   @unique
   name       String
   password   String
+  role       Role     @default(USER)
   created_at DateTime @default(now()) @mydb.Timestamptz(3)
   posts      Post[]
 }

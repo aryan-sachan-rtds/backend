@@ -2,17 +2,17 @@ import prisma from "../db.js";
 import bcrypt, { genSalt } from "bcrypt";
 
 const fetchUser = async (req, res) => {
-    let { id, email } = req.query || {};
-    id = parseInt(id);
+    const usr = req.user || {};
 
-    if (!id && !email) {
-        const error = new Error("Id or email is missing.");
-        error.status = 400;
+    if (!usr) {
+        const error = new Error("Login before accessing this resource.");
+        error.status = 401;
 
-        throw error;
+        throw Error;
     }
 
     let user;
+    const id = usr.id;
 
     if (id) {
         user = await prisma.user.findUnique({
@@ -20,7 +20,8 @@ const fetchUser = async (req, res) => {
             select: {
                 id: true,
                 email: true,
-                name: true
+                name: true,
+                role: true,
             }
         });
     } else {
@@ -29,7 +30,8 @@ const fetchUser = async (req, res) => {
             select: {
                 id: true,
                 email: true,
-                name: true
+                name: true,
+                role: true,
             }
         });
     }
@@ -43,6 +45,34 @@ const fetchUser = async (req, res) => {
 
     res.status(200).json({ user });
 }
+
+const fetchUsers = async (req, res) => {
+    const { page, limit } = req.query || {};
+
+    if (!page || !limit) {
+        const error = new Error("Page and limit are required.");
+        error.status = 400;
+
+        throw error;
+    }
+
+    const users = await prisma.user.findMany({
+        take: parseInt(limit),
+        skip: ((parseInt(page) - 1) * parseInt(limit)),
+        orderBy: {
+            created_at: "desc",
+        },
+    });
+
+    if (!users) {
+        const error = new Error("Users not found.");
+        error.status = 404;
+
+        throw error;
+    }
+
+    res.status(200).json({ users });
+};
 
 const createUser = async (req, res) => {
     const { email, name, password } = req.body || {};
@@ -82,4 +112,4 @@ const createUser = async (req, res) => {
     res.status(201).json({ user });
 }
 
-export { fetchUser, createUser };
+export { fetchUser, fetchUsers, createUser };
