@@ -62,6 +62,12 @@ const fetchUsers = async (req, res) => {
         orderBy: {
             created_at: "desc",
         },
+        select: {
+            id: true,
+            email: true,
+            name: true,
+            role: true,
+        }
     });
 
     if (!users) {
@@ -112,4 +118,37 @@ const createUser = async (req, res) => {
     res.status(201).json({ user });
 }
 
-export { fetchUser, fetchUsers, createUser };
+const createPost = async (req, res) => {
+    const { title, content } = req.body || {};
+
+    if (!title || !content) {
+        const error = new Error("Some or all required information is missing.");
+        error.status = 400;
+
+        throw error;
+    }
+
+    const blog = await prisma.post.create({
+        data: {
+            title,
+            content,
+            authorId: req.user.id
+        },
+        select: {
+            id: true,
+            title: true,
+            published: true,
+        }
+    });
+
+    if (!blog) {
+        const error = new Error("Blog not created.");
+        error.status = 500;
+
+        throw error;
+    }
+
+    res.status(201).json({ blog });
+}
+
+export { fetchUser, fetchUsers, createUser, createPost };

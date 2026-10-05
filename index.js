@@ -18,7 +18,7 @@ app.use("/users", userRouter);
 app.use("/auth", authRouter);
 
 app.get("/health", (req, res) => {
-    res.status(200).json({ "message": "hello" });
+    return res.status(200).json({ "message": "hello" });
 });
 
 app.use(errorMiddleware);

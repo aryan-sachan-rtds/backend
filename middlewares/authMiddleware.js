@@ -14,6 +14,7 @@ const protect = (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
 
         req.user = decoded;
+
         next();
     } catch (error) {
         const err = new Error("Invalid access token.");

@@ -32,7 +32,7 @@ const loginUser = async (req, res) => {
         throw error;
     }
 
-    const refreshToken = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_REFRESH_SECRET, { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN });
+    const refreshToken = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_REFRESH_SECRET, { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN });
 
     res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
@@ -62,15 +62,13 @@ const issueAccessToken = (req, res) => {
     try {
         const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
-        accessToken = jwt.sign({ id: decoded.id, email: decoded.email }, process.env.JWT_ACCESS_SECRET, { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN });
+        accessToken = jwt.sign({ id: decoded.id, email: decoded.email, role: decoded.role }, process.env.JWT_ACCESS_SECRET, { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN });
     } catch (error) {
         const err = new Error("Invalid refresh token.");
         err.status = 401;
 
         throw err;
     }
-
-    console.log(accessToken);
 
     res.cookie("accessToken", accessToken, {
         httpOnly: true,
