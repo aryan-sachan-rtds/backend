@@ -1,0 +1,7 @@
+.gen-env-secret.sh
+
+.git/
+
+.gitignore
+
+node_modules/

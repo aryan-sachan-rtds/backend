@@ -1,4 +1,4 @@
-import prisma from "../db.js";
+import { prisma_replica } from "../db.js";
 
 const control = (...allowedRoles) => {
     return async (req, res, next) => {

@@ -1,5 +1,5 @@
-import prisma from "../db.js";
-import bcrypt, { genSalt } from "bcrypt";
+import { prisma_replica } from "../db.js";
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 const loginUser = async (req, res) => {
@@ -12,7 +12,7 @@ const loginUser = async (req, res) => {
         throw error;
     }
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma_replica.user.findUnique({
         where: { email },
     });
 

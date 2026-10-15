@@ -1,4 +1,4 @@
-import prisma from "../db.js";
+import { prisma_primary, prisma_replica } from "../db.js";
 import bcrypt, { genSalt } from "bcrypt";
 
 const fetchUser = async (req, res) => {
@@ -15,7 +15,7 @@ const fetchUser = async (req, res) => {
     const id = usr.id;
 
     if (id) {
-        user = await prisma.user.findUnique({
+        user = await prisma_primary.user.findUnique({
             where: { id },
             select: {
                 id: true,
@@ -25,7 +25,7 @@ const fetchUser = async (req, res) => {
             }
         });
     } else {
-        user = await prisma.user.findUnique({
+        user = await prisma_primary.user.findUnique({
             where: { email },
             select: {
                 id: true,
@@ -56,7 +56,7 @@ const fetchUsers = async (req, res) => {
         throw error;
     }
 
-    const users = await prisma.user.findMany({
+    const users = await prisma_replica.user.findMany({
         take: parseInt(limit),
         skip: ((parseInt(page) - 1) * parseInt(limit)),
         orderBy: {
@@ -69,6 +69,8 @@ const fetchUsers = async (req, res) => {
             role: true,
         }
     });
+
+    console.log("READ DATABASE HIT:", result);
 
     if (!users) {
         const error = new Error("Users not found.");
@@ -93,7 +95,7 @@ const createUser = async (req, res) => {
     const salt = await genSalt(10);
     const hashed_password = await bcrypt.hash(password, salt);
 
-    const user = await prisma.user.create({
+    const user = await prisma_primary.user.create({
         data: {
             email,
             name,
@@ -128,7 +130,7 @@ const createPost = async (req, res) => {
         throw error;
     }
 
-    const blog = await prisma.post.create({
+    const blog = await prisma_primary.post.create({
         data: {
             title,
             content,
